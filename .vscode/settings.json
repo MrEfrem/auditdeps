@@ -1,0 +1,12 @@
+{
+  "eslint.nodePath": ".vscode/pnpify",
+  "eslint.packageManager": "yarn",
+  "prettier.prettierPath": ".vscode/pnpify/prettier/index.js",
+  "prettier.packageManager": "yarn",
+  "typescript.tsdk": ".vscode/pnpify/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "npm.packageManager": "yarn",
+  "editor.formatOnSave": true,
+  "editor.tabSize": 2,
+  "files.eol": "\n"
+}

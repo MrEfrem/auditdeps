@@ -1,0 +1,32 @@
+{
+  "parser": "babel-eslint",
+  "env": {
+    "browser": true,
+    "mocha": true,
+    "node": true,
+    "es6": true,
+    "shared-node-browser": true,
+    "worker": true
+  },
+  "extends": ["eslint:recommended"],
+  "rules": {
+    "jsx-quotes": 2,
+    "no-console": 0,
+    "eqeqeq": 2,
+    "no-caller": 2,
+    "no-eq-null": 2,
+    "no-implicit-coercion": 2,
+    "no-var": 2,
+    "array-callback-return": [2, { "allowImplicit": true }],
+    "no-loop-func": 2,
+    "no-duplicate-imports": 2,
+    "no-multi-assign": 2,
+    "semi": 2,
+    "no-param-reassign": 2,
+    "radix": 2,
+    "no-new-wrappers": 2,
+    "no-restricted-globals": [2, "isNaN", "isFinite"],
+    "require-atomic-updates": 0,
+    "no-shadow": ["error", { "builtinGlobals": true, "hoist": "all" }]
+  }
+}

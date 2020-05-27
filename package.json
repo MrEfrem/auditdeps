@@ -1,0 +1,52 @@
+{
+  "name": "@efrem/auditdeps",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "bin": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "repository": "https://github.com/MrEfrem/auditdeps.git",
+  "author": "MrEfrem <mr.efrem@gmail.com>",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=10"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged && yarn lint && yarn tsc",
+      "pre-push": "yarn lint && yarn tsc"
+    }
+  },
+  "scripts": {
+    "outdated": "yarn upgrade-interactive",
+    "start": "node -r @babel/register src/index.js",
+    "build": "babel src -d dist",
+    "exec": "node dist/index.js",
+    "lint": "eslint src/**/*.js",
+    "prepublish": "yarn lint && yarn tsc && yarn build"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.10.0",
+    "@babel/preset-env": "^7.10.0",
+    "@babel/register": "^7.9.0",
+    "@types/core-js": "2.5.3",
+    "@types/node": "^14.0.5",
+    "@types/semver": "7.2.0",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.1.0",
+    "husky": "^4.2.5",
+    "prettier": "^2.0.5",
+    "pretty-quick": "^2.0.1",
+    "typescript": "^3.9.3"
+  },
+  "dependencies": {
+    "@yarnpkg/parsers": "^2.0.0-rc.11",
+    "core-js": "^3.6.5",
+    "semver": "^7.3.2"
+  }
+}

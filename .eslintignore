@@ -1,0 +1,7 @@
+.idea
+.vscode
+.yarn
+node_modules/*
+build/output/*
+dist/*
+.pnp.js
