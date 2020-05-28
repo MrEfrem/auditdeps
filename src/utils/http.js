@@ -61,6 +61,7 @@ export function executeHttpRequest({
     } else {
       requestOptions.headers = headers;
     }
+    requestOptions.headers['accept-encoding'] = 'gzip, deflate, br';
 
     const request = requester.request(requestOptions, (res) => {
       /** @type {Array<Uint8Array>} */
@@ -101,22 +102,26 @@ export function executeHttpRequest({
         });
       };
 
-      switch (res.headers['content-encoding']) {
-        case 'gzip':
-        case 'deflate': {
-          const gunzip = zlib.createGunzip();
-          res.pipe(gunzip);
-          gunzip
-            .on('data', rawData.push.bind(rawData))
-            .on('end', returnResults)
-            .on('error', reject);
-          break;
-        }
-        default: {
-          res.on('data', rawData.push.bind(rawData));
-          res.on('end', returnResults);
-          break;
-        }
+      let decompressor;
+      const contentEncoding = res.headers['content-encoding'];
+      if (contentEncoding === 'gzip') {
+        decompressor = zlib.createGunzip();
+      }
+      if (contentEncoding === 'deflate') {
+        decompressor = zlib.createInflate();
+      }
+      if (contentEncoding === 'br') {
+        decompressor = zlib.createBrotliDecompress();
+      }
+      if (decompressor) {
+        res.pipe(decompressor);
+        decompressor
+          .on('data', rawData.push.bind(rawData))
+          .on('end', returnResults)
+          .on('error', reject);
+      } else {
+        res.on('data', rawData.push.bind(rawData));
+        res.on('end', returnResults);
       }
     });
 

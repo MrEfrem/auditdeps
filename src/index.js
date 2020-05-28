@@ -12,20 +12,20 @@ import { executeHttpRequest } from './utils/http';
   let pageExists = true;
   while (pageExists) {
     const url = `https://www.npmjs.com/advisories?page=${page++}&perPage=100`;
-    const { data, statusCode } = await executeHttpRequest({
+    const { data } = await executeHttpRequest({
       url,
       headers: {
         'X-Spiferack': 1,
       },
+      successHttpCodes: [200],
     });
-    if (statusCode !== 200) {
-      pageExists = false;
-    } else {
-      if (isPlainObject(data)) {
-        vulnRaw.push(data);
-      } else {
-        console.log(`Response is empty: ${url}`);
+    if (isPlainObject(data)) {
+      vulnRaw.push(data);
+      if (!data.advisoriesData?.urls?.next) {
+        pageExists = false;
       }
+    } else {
+      throw new Error(`Response is empty: ${url}`);
     }
   }
   const vuln = vulnRaw.map((item) => item?.advisoriesData?.objects).flat();
@@ -58,7 +58,7 @@ import { executeHttpRequest } from './utils/http';
       console.log(
         `${foundVuln.length} vulnerabilities found - Packages audited: ${
           Object.keys(deps).length
-        }`
+        }; Known vulnerabilities: ${vuln.length}`
       );
       if (foundVuln.length) {
         process.exit(1);
