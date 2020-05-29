@@ -1,12 +1,14 @@
 {
   "name": "@efrem/auditdeps",
-  "version": "0.2.0",
-  "main": "dist/index.js",
+  "version": "0.3.0",
   "bin": "dist/index.js",
   "files": [
     "dist"
   ],
-  "repository": "https://github.com/MrEfrem/auditdeps.git",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MrEfrem/auditdeps.git"
+  },
   "author": "MrEfrem <mr.efrem@gmail.com>",
   "license": "MIT",
   "publishConfig": {

@@ -3,8 +3,25 @@ import fs from 'fs';
 import semver from 'semver';
 import { parseSyml, parseResolution } from '@yarnpkg/parsers';
 import { isPlainObject } from './utils/checks';
-
 import { executeHttpRequest } from './utils/http';
+
+const ARG_LEVEL = '--level';
+
+const cliArgs = process.argv.slice(2);
+let level = 'low';
+for (let arg of cliArgs) {
+  if (arg.startsWith(ARG_LEVEL)) {
+    const [, argValue] = arg.split('=');
+    if (!['low', 'moderate', 'high', 'critical'].includes(argValue)) {
+      console.error(`Unknown argument value: ${arg}`);
+      process.exit(1);
+    }
+    level = argValue;
+  } else {
+    console.error(`Unknown argument: ${arg}`);
+    process.exit(1);
+  }
+}
 
 (async () => {
   const vulnRaw = [];
@@ -49,10 +66,16 @@ import { executeHttpRequest } from './utils/http';
       for (let item of vuln) {
         if (
           deps[item.module_name] &&
-          semver.satisfies(deps[item.module_name], item.vulnerable_versions)
+          semver.satisfies(deps[item.module_name], item.vulnerable_versions) &&
+          (level === 'low' ||
+            (level === 'moderate' &&
+              ['moderate', 'high', 'critical'].includes(item.severity)) ||
+            (level === 'high' &&
+              ['high', 'critical'].includes(item.severity)) ||
+            (level === 'critical' && level === item.severity))
         ) {
           foundVuln.push(item);
-          console.error(item);
+          console.log(item);
         }
       }
       console.log(

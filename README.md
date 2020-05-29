@@ -5,14 +5,20 @@
 ### Yarn 2 (berry)
 
 ```bash
-yarn dlx @efrem/auditdeps
+yarn dlx @efrem/auditdeps [--level=(low|moderate|high|critical)]
 ```
 
 ### Npm
 
 ```bash
-npx @efrem/auditdeps
+npx @efrem/auditdeps [--level=(low|moderate|high|critical)]
 ```
+
+- `--level` is optional and by default all vulneravilities shown. But if it's set then shown only vulnerabilities of selected level or higher.
+
+If found vulerabilities the command exits with code 1.
+
+## Development
 
 # VSCode
 
