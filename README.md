@@ -1,4 +1,4 @@
-# Audit dependencies in Yarn 2 (berry) project
+# Audit dependencies in Yarn 2 (berry) projects
 
 ## Using
 
@@ -20,7 +20,7 @@ If found vulerabilities the command exits with code 1.
 
 ## Development
 
-# VSCode
+### VSCode
 
 - Setup (<https://yarnpkg.com/advanced/editor-sdks#vscode>)
 
