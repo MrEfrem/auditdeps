@@ -5,6 +5,11 @@ import { parseSyml, parseResolution } from '@yarnpkg/parsers';
 import { isPlainObject } from './utils/checks';
 import { executeHttpRequest } from './utils/http';
 
+process.on('unhandledRejection', (reason, promise) => {
+  console.log('Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
+});
+
 const ARG_LEVEL = '--level';
 
 const cliArgs = process.argv.slice(2);
@@ -24,68 +29,76 @@ for (let arg of cliArgs) {
 }
 
 (async () => {
-  const vulnRaw = [];
-  let page = 0;
-  let pageExists = true;
-  while (pageExists) {
-    const url = `https://www.npmjs.com/advisories?page=${page++}&perPage=100`;
-    const { data } = await executeHttpRequest({
-      url,
-      headers: {
-        'X-Spiferack': 1,
-      },
-      successHttpCodes: [200],
-    });
-    if (isPlainObject(data)) {
-      vulnRaw.push(data);
-      if (!data.advisoriesData?.urls?.next) {
-        pageExists = false;
+  try {
+    const vulnRaw = [];
+    let page = 0;
+    let pageExists = true;
+    while (pageExists) {
+      const url = `https://www.npmjs.com/advisories?page=${page++}&perPage=100`;
+      const { data } = await executeHttpRequest({
+        url,
+        headers: {
+          'X-Spiferack': 1,
+        },
+        successHttpCodes: [200],
+      });
+      if (isPlainObject(data)) {
+        vulnRaw.push(data);
+        if (!data.advisoriesData?.urls?.next) {
+          pageExists = false;
+        }
+      } else {
+        throw new Error(`Response is empty: ${url}`);
       }
-    } else {
-      throw new Error(`Response is empty: ${url}`);
     }
-  }
-  const vuln = vulnRaw.map((item) => item?.advisoriesData?.objects).flat();
-  if (vuln.length) {
-    const yarnLockRaw = fs.readFileSync('yarn.lock').toString();
-    const yarnLock = parseSyml(yarnLockRaw);
-    delete yarnLock.__metadata;
+    const vuln = vulnRaw.map((item) => item?.advisoriesData?.objects).flat();
+    if (vuln.length) {
+      const yarnLockRaw = fs.readFileSync('yarn.lock').toString();
+      const yarnLock = parseSyml(yarnLockRaw);
+      delete yarnLock.__metadata;
 
-    const deps = Object.values(yarnLock).reduce((prev, next) => {
-      const resolution = parseResolution(next.resolution);
-      if (!resolution.from) {
-        if (!resolution.descriptor.fullName || !next.version) {
-          console.error('Unknown dependency structure', next);
+      const deps = Object.values(yarnLock).reduce((prev, next) => {
+        const resolution = parseResolution(next.resolution);
+        if (!resolution.from) {
+          if (!resolution.descriptor.fullName || !next.version) {
+            console.error('Unknown dependency structure', next);
+          }
+          prev[resolution.descriptor.fullName] = next.version;
         }
-        prev[resolution.descriptor.fullName] = next.version;
-      }
-      return prev;
-    }, /** @type {{ [x: string]: string }} */ ({}));
-    if (Object.keys(deps).length) {
-      const foundVuln = [];
-      for (let item of vuln) {
-        if (
-          deps[item.module_name] &&
-          semver.satisfies(deps[item.module_name], item.vulnerable_versions) &&
-          (level === 'low' ||
-            (level === 'moderate' &&
-              ['moderate', 'high', 'critical'].includes(item.severity)) ||
-            (level === 'high' &&
-              ['high', 'critical'].includes(item.severity)) ||
-            (level === 'critical' && level === item.severity))
-        ) {
-          foundVuln.push(item);
-          console.log(item);
+        return prev;
+      }, /** @type {{ [x: string]: string }} */ ({}));
+      if (Object.keys(deps).length) {
+        const foundVuln = [];
+        for (let item of vuln) {
+          if (
+            deps[item.module_name] &&
+            semver.satisfies(
+              deps[item.module_name],
+              item.vulnerable_versions
+            ) &&
+            (level === 'low' ||
+              (level === 'moderate' &&
+                ['moderate', 'high', 'critical'].includes(item.severity)) ||
+              (level === 'high' &&
+                ['high', 'critical'].includes(item.severity)) ||
+              (level === 'critical' && level === item.severity))
+          ) {
+            foundVuln.push(item);
+            console.log(item);
+          }
         }
-      }
-      console.log(
-        `${foundVuln.length} vulnerabilities found - Packages audited: ${
-          Object.keys(deps).length
-        }; Known vulnerabilities: ${vuln.length}`
-      );
-      if (foundVuln.length) {
-        process.exit(1);
+        console.log(
+          `${foundVuln.length} vulnerabilities found - Packages audited: ${
+            Object.keys(deps).length
+          }; Known vulnerabilities: ${vuln.length}`
+        );
+        if (foundVuln.length) {
+          process.exit(1);
+        }
       }
     }
+  } catch (err) {
+    console.error(`ERROR: ${err.message}`);
+    process.exit(1);
   }
 })();
