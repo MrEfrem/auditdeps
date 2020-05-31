@@ -4,6 +4,7 @@ import semver from 'semver';
 import { parseSyml, parseResolution } from '@yarnpkg/parsers';
 import { isPlainObject } from './utils/checks';
 import { executeHttpRequest } from './utils/http';
+import { getPkgsParents, getPrettyPkgParents } from './utils/getPkgParents';
 
 process.on('unhandledRejection', (reason, promise) => {
   console.log('Unhandled Rejection at:', promise, 'reason:', reason);
@@ -11,9 +12,11 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 const ARG_LEVEL = '--level';
+const ARG_PRODUCTION = '--production';
 
 const cliArgs = process.argv.slice(2);
 let level = 'low';
+let isProduction = false;
 for (let arg of cliArgs) {
   if (arg.startsWith(ARG_LEVEL)) {
     const [, argValue] = arg.split('=');
@@ -22,6 +25,8 @@ for (let arg of cliArgs) {
       process.exit(1);
     }
     level = argValue;
+  } else if (arg === ARG_PRODUCTION) {
+    isProduction = true;
   } else {
     console.error(`Unknown argument: ${arg}`);
     process.exit(1);
@@ -30,6 +35,13 @@ for (let arg of cliArgs) {
 
 (async () => {
   try {
+    const yarnLockRaw = fs.readFileSync('yarn.lock').toString();
+    const packageJson = JSON.parse(fs.readFileSync('package.json').toString());
+
+    if (isProduction && !packageJson.dependencies) {
+      console.log(`Packages aren't found`);
+    }
+
     const vulnRaw = [];
     let page = 0;
     let pageExists = true;
@@ -53,7 +65,6 @@ for (let arg of cliArgs) {
     }
     const vuln = vulnRaw.map((item) => item?.advisoriesData?.objects).flat();
     if (vuln.length) {
-      const yarnLockRaw = fs.readFileSync('yarn.lock').toString();
       const yarnLock = parseSyml(yarnLockRaw);
       delete yarnLock.__metadata;
 
@@ -84,15 +95,54 @@ for (let arg of cliArgs) {
               (level === 'critical' && level === item.severity))
           ) {
             foundVuln.push(item);
+          }
+        }
+        let filteredNumVuln = 0;
+        if (foundVuln.length) {
+          const pkgsParents = await getPkgsParents(
+            foundVuln.map((item) => item.module_name)
+          );
+          for (let item of foundVuln) {
+            const pkgName = item.module_name;
+            let parents = pkgsParents[pkgName];
+            if (parents[packageJson.name]) {
+              parents = parents[packageJson.name];
+            }
+            if (parents[pkgName]) {
+              parents = parents[pkgName];
+            }
+            if (Object.keys(parents).length) {
+              item.paths = getPrettyPkgParents(parents);
+            } else {
+              item.paths = [item.module_name];
+            }
+            if (isProduction) {
+              if (!packageJson.dependencies[pkgName]) {
+                if (item.paths !== item.module_name) {
+                  const topLevelParents = [...new Set(Object.keys(parents))];
+                  if (
+                    !topLevelParents.some(
+                      (topLevelParent) =>
+                        packageJson.dependencies[topLevelParent]
+                    )
+                  ) {
+                    continue;
+                  }
+                } else {
+                  continue;
+                }
+              }
+            }
+            filteredNumVuln++;
             console.log(item);
           }
         }
         console.log(
-          `${foundVuln.length} vulnerabilities found - Packages audited: ${
+          `${filteredNumVuln} vulnerabilities found - Packages audited: ${
             Object.keys(deps).length
           }; Known vulnerabilities: ${vuln.length}`
         );
-        if (foundVuln.length) {
+        if (filteredNumVuln) {
           process.exit(1);
         }
       }
