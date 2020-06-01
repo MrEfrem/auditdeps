@@ -1,6 +1,6 @@
 {
   "name": "@efrem/auditdeps",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "bin": "dist/index.js",
   "files": [
     "dist"
@@ -25,7 +25,7 @@
   },
   "scripts": {
     "outdated": "yarn upgrade-interactive",
-    "start": "node -r @babel/register src/index.js",
+    "start": "yarn build && yarn exec",
     "build": "babel src -d dist",
     "exec": "node dist/index.js",
     "lint": "eslint src/**/*.js",
@@ -47,6 +47,7 @@
     "typescript": "^3.9.4"
   },
   "dependencies": {
+    "@yarnpkg/cli": "^2.0.0-rc.33",
     "@yarnpkg/core": "^2.0.0-rc.27",
     "@yarnpkg/fslib": "^2.0.0-rc.20",
     "@yarnpkg/parsers": "^2.0.0-rc.11",

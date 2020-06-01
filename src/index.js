@@ -108,14 +108,8 @@ for (let arg of cliArgs) {
             if (parents[packageJson.name]) {
               parents = parents[packageJson.name];
             }
-            if (parents[pkgName]) {
-              parents = parents[pkgName];
-            }
-            if (Object.keys(parents).length) {
-              item.paths = getPrettyPkgParents(parents);
-            } else {
-              item.paths = [item.module_name];
-            }
+            item.paths = getPrettyPkgParents(parents);
+
             if (isProduction) {
               if (!packageJson.dependencies[pkgName]) {
                 if (item.paths !== item.module_name) {

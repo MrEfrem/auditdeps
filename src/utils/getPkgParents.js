@@ -1,5 +1,6 @@
 import { Configuration, structUtils, Project, miscUtils } from '@yarnpkg/core';
 import { npath } from '@yarnpkg/fslib';
+import { getPluginConfiguration } from '@yarnpkg/cli';
 
 /**
  * @typedef {{[key: string]: TreeNode}} TreeNode
@@ -13,7 +14,7 @@ import { npath } from '@yarnpkg/fslib';
  */
 export const getPkgsParents = async (pkgs) => {
   const cwd = npath.toPortablePath(process.cwd());
-  const configuration = await Configuration.find(cwd, null);
+  const configuration = await Configuration.find(cwd, getPluginConfiguration());
 
   const { project } = await Project.find(configuration, cwd);
 
@@ -174,7 +175,7 @@ export const getPrettyPkgParents = (tree) => {
       if (Object.keys(_tree[pkg]).length) {
         _buildPrettyPath(_tree[pkg], `${lastPath}${pkg} > `);
       } else {
-        prettyPaths.push(lastPath.slice(0, -3));
+        prettyPaths.push(`${lastPath}${pkg}`);
       }
     });
   };
