@@ -1473,7 +1473,7 @@ __metadata:
     "@babel/preset-env": ^7.11.5
     "@babel/register": ^7.11.5
     "@types/core-js": 2.5.4
-    "@types/node": ^14.10.2
+    "@types/node": ^14.11.1
     "@types/semver": 7.3.4
     "@yarnpkg/cli": ^2.2.2
     "@yarnpkg/core": ^2.2.2
@@ -1616,10 +1616,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^14.10.2":
-  version: 14.10.2
-  resolution: "@types/node@npm:14.10.2"
-  checksum: e3056686911078de7bbc3faf2f97cbdb9dffda9fe8f646aff6336f73fee7a64ad5f41d757c7c577b5e8d1bdc5e1ab7e9c3de610eb78c1d8d73dd797c93eef23d
+"@types/node@npm:^14.11.1":
+  version: 14.11.1
+  resolution: "@types/node@npm:14.11.1"
+  checksum: f8bad278fcd5bdd3c173343967806a5601838570ee89ef96912909489df6d722ef7f4de08a31d98159293ef0005bd65353199327c65af77505d3aad2a05fd636
   languageName: node
   linkType: hard
 

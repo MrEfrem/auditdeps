@@ -13,10 +13,13 @@ process.on('unhandledRejection', (reason, promise) => {
 
 const ARG_LEVEL = '--level';
 const ARG_PRODUCTION = '--production';
+const ARG_IGNORE_CWE = '--ignore-cwe';
 
 const cliArgs = process.argv.slice(2);
 let level = 'low';
 let isProduction = false;
+/** @type {Array<string>} */
+const ignoreCWE = [];
 for (let arg of cliArgs) {
   if (arg.startsWith(ARG_LEVEL)) {
     const [, argValue] = arg.split('=');
@@ -25,6 +28,16 @@ for (let arg of cliArgs) {
       process.exit(1);
     }
     level = argValue;
+  } else if (arg.startsWith(ARG_IGNORE_CWE)) {
+    const [, argValue] = arg.split('=');
+    if (
+      !argValue?.toUpperCase().startsWith('CWE-') ||
+      !/^(?:\d+)?$/.test(argValue.slice(4))
+    ) {
+      console.error(`Unknown argument format: ${arg}`);
+      process.exit(1);
+    }
+    ignoreCWE.push(argValue.toUpperCase());
   } else if (arg === ARG_PRODUCTION) {
     isProduction = true;
   } else {
@@ -97,7 +110,8 @@ for (let arg of cliArgs) {
             foundVuln.push(item);
           }
         }
-        let filteredNumVuln = 0;
+        let allVulnFound = 0;
+        let ignoreVulnFound = 0;
         if (foundVuln.length) {
           const pkgsParents = await getPkgsParents(
             foundVuln.map((item) => item.module_name)
@@ -127,16 +141,19 @@ for (let arg of cliArgs) {
                 }
               }
             }
-            filteredNumVuln++;
+            if (ignoreCWE.includes(item.cwe.toUpperCase())) {
+              ignoreVulnFound++;
+            }
+            allVulnFound++;
             console.log(item);
           }
         }
         console.log(
-          `${filteredNumVuln} vulnerabilities found - Packages audited: ${
+          `${allVulnFound} vulnerabilities found (${ignoreVulnFound} ignore) - Packages audited: ${
             Object.keys(deps).length
           }; Known vulnerabilities: ${vuln.length}`
         );
-        if (filteredNumVuln) {
+        if (allVulnFound - ignoreVulnFound > 0) {
           process.exit(1);
         }
       }

@@ -42,7 +42,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@babel/preset-env", "virtual:cd85864fdfa43e5f13b7a46ddb9c30388804281f8572414f184cbe5af8b9f39309ed74445ef96b2934f05d21d81988c37658634afa2de3236290901b2c491ffa#npm:7.11.5"],
             ["@babel/register", "virtual:cd85864fdfa43e5f13b7a46ddb9c30388804281f8572414f184cbe5af8b9f39309ed74445ef96b2934f05d21d81988c37658634afa2de3236290901b2c491ffa#npm:7.11.5"],
             ["@types/core-js", "npm:2.5.4"],
-            ["@types/node", "npm:14.10.2"],
+            ["@types/node", "npm:14.11.1"],
             ["@types/semver", "npm:7.3.4"],
             ["@yarnpkg/cli", "virtual:cd85864fdfa43e5f13b7a46ddb9c30388804281f8572414f184cbe5af8b9f39309ed74445ef96b2934f05d21d81988c37658634afa2de3236290901b2c491ffa#npm:2.2.2"],
             ["@yarnpkg/core", "npm:2.2.2"],
@@ -1863,7 +1863,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@babel/preset-env", "virtual:cd85864fdfa43e5f13b7a46ddb9c30388804281f8572414f184cbe5af8b9f39309ed74445ef96b2934f05d21d81988c37658634afa2de3236290901b2c491ffa#npm:7.11.5"],
             ["@babel/register", "virtual:cd85864fdfa43e5f13b7a46ddb9c30388804281f8572414f184cbe5af8b9f39309ed74445ef96b2934f05d21d81988c37658634afa2de3236290901b2c491ffa#npm:7.11.5"],
             ["@types/core-js", "npm:2.5.4"],
-            ["@types/node", "npm:14.10.2"],
+            ["@types/node", "npm:14.11.1"],
             ["@types/semver", "npm:7.3.4"],
             ["@yarnpkg/cli", "virtual:cd85864fdfa43e5f13b7a46ddb9c30388804281f8572414f184cbe5af8b9f39309ed74445ef96b2934f05d21d81988c37658634afa2de3236290901b2c491ffa#npm:2.2.2"],
             ["@yarnpkg/core", "npm:2.2.2"],
@@ -2026,10 +2026,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],
           "linkType": "HARD",
         }],
-        ["npm:14.10.2", {
-          "packageLocation": "./.yarn/cache/@types-node-npm-14.10.2-4d756af0b8-e305668691.zip/node_modules/@types/node/",
+        ["npm:14.11.1", {
+          "packageLocation": "./.yarn/cache/@types-node-npm-14.11.1-6670c607c7-f8bad278fc.zip/node_modules/@types/node/",
           "packageDependencies": [
-            ["@types/node", "npm:14.10.2"]
+            ["@types/node", "npm:14.11.1"]
           ],
           "linkType": "HARD",
         }]
